@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Execution OS</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--text:#172033;--muted:#687386;--line:#e3e7ef;--accent:#2563eb;--good:#15803d;--danger:#b91c1c;--radius:18px;--shadow:0 8px 28px rgba(15,23,42,.07)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input,textarea{font:inherit}button{cursor:pointer}.app{max-width:1050px;margin:auto;padding:16px 14px 45px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.brand{display:flex;gap:11px;align-items:center}.logo{width:42px;height:42px;border-radius:12px;background:#111827;display:grid;place-items:center;color:#60a5fa;font-weight:900;font-size:25px}.brand h1{margin:0;font-size:21px}.brand p{margin:1px 0 0;color:var(--muted);font-size:11px}
+.actions{display:flex;gap:7px}.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 11px;font-weight:650;color:var(--text)}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.danger{color:var(--danger)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}.full{grid-column:1/-1}
+.datebar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.datebar strong{font-size:17px}.date-controls{display:flex;gap:6px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card h2{font-size:16px;margin:0}.sub{font-size:12px;color:var(--muted);margin:2px 0 10px}
+.task{display:flex;gap:9px;padding:8px 0;border-top:1px solid #f0f2f6}.task:first-child{border-top:0}.task input{width:19px;height:19px;accent-color:var(--accent);margin-top:2px}.task label{flex:1}.task.done label{text-decoration:line-through;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.stat{background:#f8fafc;border-radius:13px;padding:10px}.stat b{display:block;font-size:21px}.stat span{font-size:10px;color:var(--muted)}.progress{height:8px;background:#edf0f5;border-radius:99px;margin-top:10px;overflow:hidden}.progress div{height:100%;width:0;background:var(--accent);transition:.2s}
+input[type=text],input[type=number],textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px;background:#fff;color:var(--text);outline:none}textarea{resize:vertical}input:focus,textarea:focus{border-color:#93b4ff;box-shadow:0 0 0 3px #dbeafe}.field label{display:block;font-size:11px;font-weight:700;color:#475569;margin:9px 0 4px}.row{display:flex;gap:8px}.row>*{flex:1}.fit{flex:0 0 auto}
+.review{display:grid;grid-template-columns:1fr 1fr;gap:10px}.small{font-size:11px;color:var(--muted)}footer{text-align:center;color:var(--muted);font-size:10px;margin-top:18px}
+dialog{border:0;border-radius:18px;padding:0;width:min(680px,calc(100% - 24px));box-shadow:0 25px 80px rgba(0,0,0,.25)}dialog::backdrop{background:rgba(15,23,42,.45)}.modal{padding:17px}.history{display:grid;grid-template-columns:110px 1fr 1fr 1fr;gap:7px;padding:8px 0;border-top:1px solid var(--line);font-size:12px}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:9px 13px;border-radius:10px;opacity:0;transition:.2s;pointer-events:none}.toast.show{opacity:1}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.stats{grid-template-columns:repeat(2,1fr)}.review{grid-template-columns:1fr}.datebar{align-items:flex-start;flex-direction:column}header{align-items:flex-start}.actions{flex-wrap:wrap}.history{grid-template-columns:90px 1fr 1fr 1fr;font-size:11px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<div class="brand"><div class="logo">✓</div><div><h1>Execution OS</h1><p>Learn → Digest → Apply → Measure → Improve</p></div></div>
+<div class="actions">
+<button class="btn" onclick="showHistory()">History</button>
+<button class="btn" onclick="exportData()">Backup</button>
+<button class="btn" onclick="document.getElementById('importFile').click()">Restore</button>
+<input id="importFile" type="file" accept="application/json" hidden onchange="importData(event)">
+</div>
+</header>
+
+<div class="datebar">
+<div><strong id="dateTitle"></strong><div class="small" id="dateSub"></div></div>
+<div class="date-controls"><button class="btn" onclick="moveDate(-1)">←</button><button class="btn" onclick="today()">Today</button><button class="btn" onclick="moveDate(1)">→</button></div>
+</div>
+
+<section class="card">
+<div class="stats">
+<div class="stat"><b id="done">0/0</b><span>actions complete</span></div>
+<div class="stat"><b id="pct">0%</b><span>daily completion</span></div>
+<div class="stat"><b id="pyqStat">0</b><span>PYQs solved</span></div>
+<div class="stat"><b id="outputStat">0</b><span>outputs</span></div>
+</div><div class="progress"><div id="bar"></div></div>
+</section>
+
+<main class="grid" style="margin-top:14px">
+
+<section class="card"><h2>🏃 Health</h2><div class="sub">Protect the body that carries everything else.</div><div id="health"></div>
+<div class="field"><label>Today's weight (kg)</label><input id="weight" type="number" step=".1" oninput="setField('weight',this.value)"></div></section>
+
+<section class="card"><h2>📚 APPSC Group-I</h2><div class="sub">Learn → recall → PYQs → mistakes → answer.</div><div id="appsc"></div>
+<div class="row"><div class="field"><label>PYQs solved</label><input id="pyqs" type="number" min="0" oninput="setField('pyqs',this.value)"></div><div class="field"><label>PYQs correct</label><input id="correct" type="number" min="0" oninput="setField('correct',this.value)"></div></div><div class="small" id="accuracy"></div></section>
+
+<section class="card"><h2>💰 Wealth</h2><div class="sub">Turn knowledge into sound decisions and valuable skills.</div><div id="wealth"></div></section>
+<section class="card"><h2>🌱 Impact</h2><div class="sub">Create something useful or solve a real problem.</div><div id="impact"></div></section>
+
+<section class="card full"><h2>🧠 Knowledge → Action</h2><div class="sub">Every important idea must lead to action.</div>
+<div class="review">
+<div class="field"><label>What did I learn?</label><textarea id="learned" rows="3" oninput="setField('learned',this.value)"></textarea></div>
+<div class="field"><label>Digest it in 3 bullets</label><textarea id="digest" rows="3" placeholder="1. ...&#10;2. ...&#10;3. ..." oninput="setField('digest',this.value)"></textarea></div>
+<div class="field"><label>What will I apply within 24 hours?</label><textarea id="applied" rows="3" oninput="setField('applied',this.value)"></textarea></div>
+<div class="field"><label>What evidence shows I applied it?</label><textarea id="evidence" rows="3" oninput="setField('evidence',this.value)"></textarea></div>
+</div></section>
+
+<section class="card full"><h2>🌙 Daily Review</h2><div class="sub">Five minutes. Evidence, not self-judgment.</div>
+<div class="review">
+<div class="field"><label>What did I produce today?</label><textarea id="produced" rows="2" oninput="setField('produced',this.value)"></textarea></div>
+<div class="field"><label>What went well?</label><textarea id="wentWell" rows="2" oninput="setField('wentWell',this.value)"></textarea></div>
+<div class="field"><label>What went wrong?</label><textarea id="wentWrong" rows="2" oninput="setField('wentWrong',this.value)"></textarea></div>
+<div class="field"><label>Tomorrow's #1 action</label><textarea id="tomorrow" rows="2" oninput="setField('tomorrow',this.value)"></textarea></div>
+</div>
+<div style="margin-top:12px"><button class="btn primary" onclick="saveDay()">Save day</button> <span class="small">Saved automatically on this device.</span></div>
+</section>
+</main>
+<footer>Execution OS • Single-file version • No server or account required</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+<dialog id="historyDialog"><div class="modal"><div class="row"><h2 style="margin:0">History</h2><button class="btn fit" onclick="historyDialog.close()">Close</button></div><p class="small">Saved days on this browser.</p><div id="historyList"></div></div></dialog>
+
+<script>
+const STORE='executionOS_single_v1';
+const groups={
+health:[['exercise','Complete planned exercise / walk'],['food','Follow planned food routine'],['walk','Complete planned walking / movement'],['sleep','Start sleep routine on time']],
+appsc:[['study','Study one predefined topic'],['recall','Close the source and recall from memory'],['pyq','Solve today’s PYQs'],['errors','Analyse wrong answers and update Error Log'],['mains','Write one Mains answer'],['revision','Revise a previous topic']],
+wealth:[['spend','Avoid unnecessary spending'],['expense','Record significant expenses'],['skill','Complete today’s high-value career/skill task']],
+impact:[['output','Create one useful output'],['help','Help, teach, or solve a real problem']]
+};
+let db=JSON.parse(localStorage.getItem(STORE)||'{"days":{}}');
+let date=new Date();date.setHours(12,0,0,0);
+
+function key(){return date.toISOString().slice(0,10)}
+function day(){let k=key();if(!db.days[k])db.days[k]={tasks:{},weight:'',pyqs:'',correct:'',learned:'',digest:'',applied:'',evidence:'',produced:'',wentWell:'',wentWrong:'',tomorrow:''};return db.days[k]}
+function persist(){localStorage.setItem(STORE,JSON.stringify(db))}
+function toast(x){let t=document.getElementById('toast');t.textContent=x;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1400)}
+function renderGroup(name,id){let d=day(),box=document.getElementById(id);box.innerHTML='';groups[name].forEach(([k,label])=>{let row=document.createElement('div');row.className='task'+(d.tasks[k]?' done':'');row.innerHTML=`<input type="checkbox" ${d.tasks[k]?'checked':''}><label>${label}</label>`;row.querySelector('input').onchange=e=>{d.tasks[k]=e.target.checked;persist();render()};box.appendChild(row)})}
+function setField(k,v){day()[k]=v;persist();stats()}
+function bind(){let d=day();['weight','pyqs','correct','learned','digest','applied','evidence','produced','wentWell','wentWrong','tomorrow'].forEach(k=>{let e=document.getElementById(k);e.value=d[k]||''})}
+function render(){
+let d=day(),fmt=new Intl.DateTimeFormat(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+document.getElementById('dateTitle').textContent=fmt.format(date);
+document.getElementById('dateSub').textContent=key()===new Date().toISOString().slice(0,10)?'Today':'Selected day';
+renderGroup('health','health');renderGroup('appsc','appsc');renderGroup('wealth','wealth');renderGroup('impact','impact');bind();stats()
+}
+function stats(){
+let d=day(),total=0,done=0;Object.values(groups).forEach(g=>g.forEach(([k])=>{total++;if(d.tasks[k])done++}));
+let p=total?Math.round(done/total*100):0;document.getElementById('done').textContent=`${done}/${total}`;document.getElementById('pct').textContent=p+'%';document.getElementById('bar').style.width=p+'%';
+document.getElementById('pyqStat').textContent=d.pyqs||0;let out=['produced','applied','evidence'].filter(k=>(d[k]||'').trim()).length;document.getElementById('outputStat').textContent=out;
+let n=Number(d.pyqs||0),c=Number(d.correct||0);document.getElementById('accuracy').textContent=n?`Accuracy: ${Math.min(100,Math.round(c/n*100))}%`:''
+}
+function moveDate(n){date.setDate(date.getDate()+n);render()}function today(){date=new Date();date.setHours(12,0,0,0);render()}function saveDay(){persist();toast('Day saved')}
+function exportData(){let b=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='execution-os-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function importData(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.days)throw 0;db=x;persist();render();toast('Backup restored')}catch{toast('Invalid backup')}};r.readAsText(f)}
+function showHistory(){let box=document.getElementById('historyList');box.innerHTML='';let ks=Object.keys(db.days).sort().reverse().slice(0,60);if(!ks.length){box.innerHTML='<p class="small">No saved days yet.</p>';historyDialog.showModal();return}ks.forEach(k=>{let d=db.days[k],t=0,c=0;Object.values(groups).forEach(g=>g.forEach(([id])=>{t++;if(d.tasks[id])c++}));let r=document.createElement('div');r.className='history';r.innerHTML=`<strong>${k}</strong><span>${t?Math.round(c/t*100):0}% complete</span><span>${d.pyqs||0} PYQs</span><span>${d.weight?d.weight+' kg':'—'}</span>`;box.appendChild(r)});historyDialog.showModal()}
+render();
+</script>
+</body>
+</html>
