@@ -1,0 +1,12 @@
+{
+  "name": "Execution OS",
+  "short_name": "Execution OS",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#111827",
+  "description": "Daily execution tracker for Health, APPSC Group-I, Wealth, Impact and Review.",
+  "icons": [
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="Execution OS — daily tracker for Health, APPSC Group-I, Wealth, Impact and Review.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>Execution OS</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#687386;--line:#e5e9f0;
+      --accent:#2563eb;--accent2:#1d4ed8;--good:#15803d;--warn:#b45309;--danger:#b91c1c;
+      --shadow:0 8px 30px rgba(15,23,42,.07);--radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer}
+    .app{max-width:1100px;margin:auto;padding:18px 16px 50px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px}.brand h1{font-size:22px;margin:0}.brand p{margin:2px 0 0;color:var(--muted);font-size:12px}
+    .top-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{border:1px solid var(--line);background:#fff;color:var(--text);padding:9px 12px;border-radius:11px;font-weight:650}
+    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.danger{color:var(--danger)}
+    .datebar{background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:var(--radius);padding:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
+    .datebar strong{font-size:18px}.datebar .controls{display:flex;gap:7px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:17px;box-shadow:var(--shadow)}
+    .card h2{font-size:16px;margin:0 0 4px}.card .sub{color:var(--muted);font-size:12px;margin-bottom:12px}
+    .full{grid-column:1/-1}
+    .task{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-top:1px solid #f0f2f6}
+    .task:first-of-type{border-top:0}.task input{width:19px;height:19px;margin-top:2px;accent-color:var(--accent)}
+    .task label{flex:1}.task.done label{text-decoration:line-through;color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;border-radius:999px;background:#eef4ff;color:#1d4ed8;padding:3px 8px;font-size:11px;font-weight:700}
+    .progress{height:9px;background:#edf0f5;border-radius:99px;overflow:hidden;margin-top:10px}.progress>div{height:100%;background:var(--accent);width:0;transition:.25s}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{padding:12px;background:#f8fafc;border-radius:14px}.stat b{font-size:22px;display:block}.stat span{font-size:11px;color:var(--muted)}
+    textarea,input[type="text"],input[type="number"]{width:100%;border:1px solid var(--line);border-radius:11px;padding:10px;background:#fff;color:var(--text);outline:none}
+    textarea:focus,input:focus{border-color:#93b4ff;box-shadow:0 0 0 3px #dbeafe}
+    .review-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:#475569}
+    .row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.row .fit{flex:0 0 auto}
+    .empty{color:var(--muted);padding:8px 0}.small{font-size:12px;color:var(--muted)}
+    .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:10px;opacity:0;pointer-events:none;transition:.2s;z-index:10}.toast.show{opacity:1}
+    dialog{border:0;border-radius:18px;padding:0;width:min(680px,calc(100% - 30px));box-shadow:0 30px 90px rgba(0,0,0,.25)}dialog::backdrop{background:rgba(15,23,42,.45)}.modal{padding:20px}.modal h2{margin-top:0}
+    .history-row{display:grid;grid-template-columns:120px 1fr 1fr 1fr;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:12px}
+    footer{text-align:center;color:var(--muted);font-size:11px;margin-top:22px}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.stats{grid-template-columns:repeat(2,1fr)}.review-grid{grid-template-columns:1fr}.datebar{align-items:flex-start;flex-direction:column}.history-row{grid-template-columns:90px 1fr 1fr 1fr;font-size:11px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <img class="logo" src="icon.svg" alt="">
+      <div><h1>Execution OS</h1><p>Learn → Digest → Apply → Measure → Improve</p></div>
+    </div>
+    <div class="top-actions">
+      <button class="btn" id="historyBtn">History</button>
+      <button class="btn" id="exportBtn">Export</button>
+      <button class="btn" id="importBtn">Import</button>
+      <button class="btn primary" id="installBtn" hidden>Install</button>
+      <input id="fileInput" type="file" accept="application/json" hidden>
+    </div>
+  </header>
+
+  <section class="datebar">
+    <div><strong id="dateTitle"></strong><div class="small" id="dateSubtitle"></div></div>
+    <div class="controls">
+      <button class="btn" id="prevDay">←</button><button class="btn" id="todayBtn">Today</button><button class="btn" id="nextDay">→</button>
+    </div>
+  </section>
+
+  <section class="card full">
+    <div class="stats">
+      <div class="stat"><b id="doneCount">0/0</b><span>daily actions</span></div>
+      <div class="stat"><b id="completion">0%</b><span>completion</span></div>
+      <div class="stat"><b id="pyqCount">0</b><span>PYQs solved</span></div>
+      <div class="stat"><b id="outputCount">0</b><span>outputs created</span></div>
+    </div>
+    <div class="progress"><div id="progressBar"></div></div>
+  </section>
+
+  <main class="grid" style="margin-top:14px">
+    <section class="card">
+      <h2>🏃 Health</h2><div class="sub">Protect the body that carries everything else.</div>
+      <div id="healthTasks"></div>
+      <div class="field" style="margin-top:12px"><label>Today's weight (kg)</label><input id="weight" type="number" step="0.1" min="0" placeholder="Optional"></div>
+    </section>
+
+    <section class="card">
+      <h2>📚 APPSC Group-I</h2><div class="sub">Study → recall → PYQs → mistakes → answer.</div>
+      <div id="appscTasks"></div>
+      <div class="row" style="margin-top:12px">
+        <div><label class="small">PYQs solved</label><input id="pyqs" type="number" min="0" placeholder="0"></div>
+        <div><label class="small">PYQs correct</label><input id="pyqCorrect" type="number" min="0" placeholder="0"></div>
+      </div>
+      <div class="small" id="accuracy" style="margin-top:7px"></div>
+    </section>
+
+    <section class="card">
+      <h2>💰 Wealth</h2><div class="sub">Turn financial knowledge into sound decisions and valuable skills.</div>
+      <div id="wealthTasks"></div>
+    </section>
+
+    <section class="card">
+      <h2>🌱 Impact</h2><div class="sub">Create something useful or solve a real problem.</div>
+      <div id="impactTasks"></div>
+    </section>
+
+    <section class="card full">
+      <h2>🧠 Knowledge → Action</h2>
+      <div class="sub">Do not let useful information remain abstract.</div>
+      <div class="review-grid">
+        <div class="field"><label>What did I learn?</label><textarea id="learned" rows="3" placeholder="One important idea..."></textarea></div>
+        <div class="field"><label>Explain it in 3 bullets</label><textarea id="digest" rows="3" placeholder="1. ...&#10;2. ...&#10;3. ..."></textarea></div>
+        <div class="field"><label>What will I apply within 24 hours?</label><textarea id="applied" rows="3" placeholder="One concrete action..."></textarea></div>
+        <div class="field"><label>What evidence shows I applied it?</label><textarea id="evidence" rows="3" placeholder="Result, screenshot, score, completed action..."></textarea></div>
+      </div>
+    </section>
+
+    <section class="card full">
+      <h2>🌙 Daily Review</h2>
+      <div class="sub">Five minutes. No self-judgment—just evidence and correction.</div>
+      <div class="review-grid">
+        <div class="field"><label>What did I produce today?</label><textarea id="produced" rows="2"></textarea></div>
+        <div class="field"><label>What went well?</label><textarea id="wentWell" rows="2"></textarea></div>
+        <div class="field"><label>What went wrong?</label><textarea id="wentWrong" rows="2"></textarea></div>
+        <div class="field"><label>Tomorrow's #1 action</label><textarea id="tomorrow" rows="2"></textarea></div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary fit" id="saveReview">Save day</button>
+        <span class="small">Data is stored locally on this device.</span>
+      </div>
+    </section>
+  </main>
+
+  <footer>Execution OS • Your data stays in this browser unless you export it.</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<dialog id="historyDialog">
+  <div class="modal">
+    <div class="row"><h2 style="margin:0">History</h2><button class="btn fit" id="closeHistory">Close</button></div>
+    <p class="small">Recent days saved on this device.</p>
+    <div id="historyList"></div>
+  </div>
+</dialog>
+
+<script>
+const KEY='executionOS_v1';
+const taskGroups={
+  health:[
+    ['exercise','Complete planned exercise / walk'],
+    ['food','Follow planned food routine'],
+    ['walk','Complete planned walking / movement'],
+    ['sleep','Start sleep routine on time']
+  ],
+  appsc:[
+    ['study','Study one predefined topic'],
+    ['recall','Close the source and recall from memory'],
+    ['pyq','Solve today’s PYQs'],
+    ['errors','Analyse wrong answers and update Error Log'],
+    ['mains','Write one Mains answer'],
+    ['revision','Revise a previous topic']
+  ],
+  wealth:[
+    ['spend','Avoid unnecessary spending'],
+    ['expense','Record significant expenses'],
+    ['valueSkill','Complete today’s high-value career/skill task']
+  ],
+  impact:[
+    ['output','Create one useful output'],
+    ['help','Help/teach someone or solve a real problem']
+  ]
+};
+const labels={health:'Health',appsc:'APPSC',wealth:'Wealth',impact:'Impact'};
+let currentDate=new Date(); currentDate.setHours(12,0,0,0);
+let data=JSON.parse(localStorage.getItem(KEY)||'{"days":{}}');
+let deferredPrompt=null;
+
+function key(d){return d.toISOString().slice(0,10)}
+function getDay(){
+  const k=key(currentDate);
+  if(!data.days[k]) data.days[k]={tasks:{},weight:'',pyqs:'',pyqCorrect:'',learned:'',digest:'',applied:'',evidence:'',produced:'',wentWell:'',wentWrong:'',tomorrow:''};
+  return data.days[k];
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600)}
+function renderTasks(group, elId){
+  const d=getDay(), el=document.getElementById(elId); el.innerHTML='';
+  taskGroups[group].forEach(([id,text])=>{
+    const row=document.createElement('div'); row.className='task'+(d.tasks[id]?' done':'');
+    row.innerHTML=`<input type="checkbox" id="${group}_${id}" ${d.tasks[id]?'checked':''}><label for="${group}_${id}">${text}</label>`;
+    row.querySelector('input').addEventListener('change',e=>{d.tasks[id]=e.target.checked;save();render();});
+    el.appendChild(row);
+  });
+}
+function bindField(id,prop,type='input'){
+  const el=document.getElementById(id), d=getDay(); el.value=d[prop]??'';
+  el.oninput=()=>{d[prop]=el.value;save();updateStats()};
+}
+function render(){
+  const d=getDay();
+  const fmt=new Intl.DateTimeFormat(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('dateTitle').textContent=fmt.format(currentDate);
+  document.getElementById('dateSubtitle').textContent=key(currentDate)===key(new Date())?'Today':'Past/future day';
+  renderTasks('health','healthTasks');renderTasks('appsc','appscTasks');renderTasks('wealth','wealthTasks');renderTasks('impact','impactTasks');
+  ['weight','pyqs','pyqCorrect','learned','digest','applied','evidence','produced','wentWell','wentWrong','tomorrow'].forEach(id=>bindField(id,id));
+  updateStats();
+}
+function updateStats(){
+  const d=getDay(); let total=0,done=0;
+  Object.values(taskGroups).forEach(arr=>arr.forEach(([id])=>{total++;if(d.tasks[id])done++}));
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('doneCount').textContent=`${done}/${total}`;
+  document.getElementById('completion').textContent=pct+'%';
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('pyqCount').textContent=d.pyqs||0;
+  let out=0;if(d.produced.trim())out++;if(d.applied.trim())out++;if(d.evidence.trim())out++;
+  document.getElementById('outputCount').textContent=out;
+  const p=Number(d.pyqs||0),c=Number(d.pyqCorrect||0);
+  document.getElementById('accuracy').textContent=p?`Accuracy: ${Math.min(100,Math.round(c/p*100))}%`:'';
+}
+function shift(n){currentDate.setDate(currentDate.getDate()+n);render()}
+document.getElementById('prevDay').onclick=()=>shift(-1);
+document.getElementById('nextDay').onclick=()=>shift(1);
+document.getElementById('todayBtn').onclick=()=>{currentDate=new Date();currentDate.setHours(12,0,0,0);render()};
+document.getElementById('saveReview').onclick=()=>{save();showToast('Day saved locally');};
+document.getElementById('exportBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='execution-os-backup.json';a.click();URL.revokeObjectURL(a.href);
+};
+document.getElementById('importBtn').onclick=()=>document.getElementById('fileInput').click();
+document.getElementById('fileInput').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.days)throw Error();data=x;save();render();showToast('Backup imported')}catch{showToast('Invalid backup')}};r.readAsText(f);
+};
+document.getElementById('historyBtn').onclick=()=>{
+  const list=document.getElementById('historyList');list.innerHTML='';
+  const keys=Object.keys(data.days).sort().reverse().slice(0,30);
+  if(!keys.length){list.innerHTML='<div class="empty">No saved days yet.</div>'}
+  keys.forEach(k=>{
+    const d=data.days[k];let total=0,done=0;
+    Object.values(taskGroups).forEach(arr=>arr.forEach(([id])=>{total++;if(d.tasks[id])done++}));
+    const row=document.createElement('div');row.className='history-row';
+    row.innerHTML=`<strong>${k}</strong><span>${total?Math.round(done/total*100):0}% complete</span><span>${d.pyqs||0} PYQs</span><span>${d.weight?d.weight+' kg':'—'}</span>`;
+    list.appendChild(row);
+  });
+  document.getElementById('historyDialog').showModal();
+};
+document.getElementById('closeHistory').onclick=()=>document.getElementById('historyDialog').close();
+
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBtn').hidden=false});
+document.getElementById('installBtn').onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBtn').hidden=true};
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+render();
+</script>
+</body>
+</html>
